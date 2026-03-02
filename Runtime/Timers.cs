@@ -48,6 +48,7 @@ namespace EGG.Timers
             IsRunning = false;
             MarkedForRemoval = true;
         }
+
         public void Pause()
         {
             IsRunning = false;
@@ -57,20 +58,41 @@ namespace EGG.Timers
             IsRunning = true;
         }
 
+        public void Increment(float amount)
+        {
+            if (!IsRunning) return;
+
+            _elapsed += amount;
+            CheckIfCompleted();
+        }
+        public void Decrement(float amount)
+        {
+            if (!IsRunning) return;
+            _elapsed = Mathf.Max(_elapsed - amount, 0f);
+            CheckIfCompleted();
+        }
 
         public virtual void Tick(float deltaTime)
         {
             if (!IsRunning) return;
 
             _elapsed += deltaTime;
+            CheckIfCompleted();
+        }
+
+        private bool CheckIfCompleted()
+        {
             if (_elapsed >= _duration)
             {
                 IsRunning = false;
                 Log($"Timer completed after {_elapsed} seconds.");
                 if (AutoRemoveOnComplete) MarkedForRemoval = true;
                 OnTimerCompleted?.Invoke();
+                return true;
             }
+            return false;
         }
+
         private static readonly bool _log = false;
         private static void Log(string message)
         {
@@ -116,6 +138,7 @@ namespace EGG.Timers
             _interval = interval;
             _elapsed = 0f;
             _elapsedDuration = 0f;
+            HasDuration = false;
             IsRunning = true;
         }
         public void Start(float interval, float duration)
@@ -135,11 +158,13 @@ namespace EGG.Timers
             _duration = 0f;
             IsRunning = false;
         }
+
         public void Dispose()
         {
             IsRunning = false;
             MarkedForRemoval = true;
         }
+
         public void Pause()
         {
             IsRunning = false;
@@ -147,6 +172,29 @@ namespace EGG.Timers
         public void Unpause()
         {
             IsRunning = true;
+        }
+
+        public void IncrementInterval(float amount)
+        {
+            if (!IsRunning) return;
+            _elapsed += amount;
+        }
+        public void DecrementInterval(float amount)
+        {
+            if (!IsRunning) return;
+            _elapsed = Mathf.Max(_elapsed - amount, 0f);
+        }
+
+        public void IncrementDuration(float amount)
+        {
+            if (!IsRunning || !HasDuration) return;
+            _elapsedDuration += amount;
+            CheckIfCompleted();
+        }
+        public void DecrementDuration(float amount)
+        {
+            if (!IsRunning || !HasDuration) return;
+            _elapsedDuration = Mathf.Max(_elapsedDuration - amount, 0f);
         }
 
         public virtual void Tick(float deltaTime)
@@ -161,6 +209,11 @@ namespace EGG.Timers
                 _elapsed -= _interval;
                 OnTick?.Invoke();
             }
+            CheckIfCompleted();
+        }
+
+        private void CheckIfCompleted()
+        {
             if (HasDuration && _elapsedDuration >= _duration)
             {
                 IsRunning = false;

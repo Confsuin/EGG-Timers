@@ -15,6 +15,8 @@ namespace EGG.Timers
         void Tick(float deltaTime);
         void Pause();
         void Unpause();
+        void Decrement(float amount);
+        void Increment(float amount);
 
         event Action OnTimerCompleted;
     }
@@ -34,6 +36,10 @@ namespace EGG.Timers
         void Tick(float deltaTime);
         void Pause();
         void Unpause();
+        void IncrementInterval(float amount);
+        void DecrementInterval(float amount);
+        void IncrementDuration(float amount);
+        void DecrementDuration(float amount);
 
         event Action OnTick;
         event Action OnTimerCompleted;
