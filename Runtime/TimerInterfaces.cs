@@ -36,8 +36,8 @@ namespace EGG.Timers
         void Tick(float deltaTime);
         void Pause();
         void Unpause();
-        void IncrementInterval(float amount);
-        void DecrementInterval(float amount);
+        void IncrementTick(float amount);
+        void DecrementTick(float amount);
         void IncrementDuration(float amount);
         void DecrementDuration(float amount);
 

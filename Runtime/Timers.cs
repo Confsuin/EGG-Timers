@@ -174,12 +174,12 @@ namespace EGG.Timers
             IsRunning = true;
         }
 
-        public void IncrementInterval(float amount)
+        public void IncrementTick(float amount)
         {
             if (!IsRunning) return;
             _elapsed += amount;
         }
-        public void DecrementInterval(float amount)
+        public void DecrementTick(float amount)
         {
             if (!IsRunning) return;
             _elapsed = Mathf.Max(_elapsed - amount, 0f);
