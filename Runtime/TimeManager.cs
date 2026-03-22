@@ -57,27 +57,27 @@ namespace EGG.Timers
         {
             float dt = Time.deltaTime;
 
-            for (int i = _timers.Count - 1; i >= 0; i--)
-            {
-                var timer = _timers[i];
-                _timers[i].Tick(dt);
-                if (timer.MarkedForRemoval || timer.Owner == null)
-                {
-                    _timers.RemoveAt(i);
-                    continue;
-                }
-            }
-
             for (int i = _tickTimers.Count - 1; i >= 0; i--)
             {
                 var tickTimer = _tickTimers[i];
-                tickTimer.Tick(dt);
                 if (tickTimer.MarkedForRemoval || tickTimer.Owner == null)
                 {
                     _tickTimers.RemoveAt(i);
                     continue;
                 }
+                tickTimer.Tick(dt);
             }
+            for (int i = _timers.Count - 1; i >= 0; i--)
+            {
+                var timer = _timers[i];
+                if (timer.MarkedForRemoval || timer.Owner == null)
+                {
+                    _timers.RemoveAt(i);
+                    continue;
+                }
+                _timers[i].Tick(dt);
+            }
+
             Count = _timers.Count + _tickTimers.Count;
         }
         public int Count;

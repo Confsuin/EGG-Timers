@@ -111,19 +111,14 @@ namespace EGG.Timers
         private bool _registered = false;
 
         [SerializeField] protected float _interval;
-        [SerializeField] private float _duration;
-        [SerializeField] private float _elapsed;
-        [SerializeField] private float _elapsedDuration;
+        [SerializeField] protected float _elapsed;
 
-        public bool HasDuration { get; set; } = false;
         public bool IsRunning { get; protected set; }
-        public bool AutoRemoveOnStop { get; set; } = false;
-        public float RemainingTime => Mathf.Max(_duration - _elapsedDuration, 0f);
+        public float RemainingTime => Mathf.Max(_interval - _elapsed, 0f);
 
         public bool MarkedForRemoval { get; private set; } = false;
 
         public event Action OnTick;
-        public event Action OnTimerCompleted;
 
         public void Register()
         {
@@ -137,25 +132,13 @@ namespace EGG.Timers
         {
             _interval = interval;
             _elapsed = 0f;
-            _elapsedDuration = 0f;
-            HasDuration = false;
             IsRunning = true;
         }
-        public void Start(float interval, float duration)
-        {
-            _interval = interval;
-            _duration = duration;
-            _elapsed = 0f;
-            _elapsedDuration = 0f;
-            HasDuration = true;
-            IsRunning = true;
-        }
+
         public void Stop()
         {
             _elapsed = 0f;
-            _elapsedDuration = 0f;
             _interval = 0f;
-            _duration = 0f;
             IsRunning = false;
         }
 
@@ -174,27 +157,15 @@ namespace EGG.Timers
             IsRunning = true;
         }
 
-        public void IncrementTick(float amount)
+        public void Increment(float amount)
         {
             if (!IsRunning) return;
             _elapsed += amount;
         }
-        public void DecrementTick(float amount)
+        public void Decrement(float amount)
         {
             if (!IsRunning) return;
             _elapsed = Mathf.Max(_elapsed - amount, 0f);
-        }
-
-        public void IncrementDuration(float amount)
-        {
-            if (!IsRunning || !HasDuration) return;
-            _elapsedDuration += amount;
-            CheckIfCompleted();
-        }
-        public void DecrementDuration(float amount)
-        {
-            if (!IsRunning || !HasDuration) return;
-            _elapsedDuration = Mathf.Max(_elapsedDuration - amount, 0f);
         }
 
         public virtual void Tick(float deltaTime)
@@ -202,23 +173,11 @@ namespace EGG.Timers
             if (!IsRunning) return;
 
             _elapsed += deltaTime;
-            if (HasDuration) _elapsedDuration += deltaTime;
 
             while (_elapsed >= _interval)
             {
                 _elapsed -= _interval;
                 OnTick?.Invoke();
-            }
-            CheckIfCompleted();
-        }
-
-        private void CheckIfCompleted()
-        {
-            if (HasDuration && _elapsedDuration >= _duration)
-            {
-                IsRunning = false;
-                if (AutoRemoveOnStop) MarkedForRemoval = true;
-                OnTimerCompleted?.Invoke();
             }
         }
     }
